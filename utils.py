@@ -4,9 +4,8 @@ import sys
 import argparse
 
 def timestamp():
-    t_struct_time = time.gmtime()
-    t_unix = time.mktime(t_struct_time)
-    return int(t_unix)
+    unix_time = time.time()
+    return int(unix_time)
 
 def encode_json(message):
     to_json = json.dumps(message)
