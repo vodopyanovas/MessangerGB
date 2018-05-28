@@ -32,6 +32,6 @@ def arg_parser():
     parser_group.add_argument ('--help', '-h', action='help', help='Help')
 
     parser_group.add_argument('--addr', '-a', help='IP address')
-    parser_group.add_argument('--port', '-p', type=int, help='TCP port')
+    parser_group.add_argument('--port', '-p', type=int, default=7777, help='TCP port')
 
     return parser
