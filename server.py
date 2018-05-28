@@ -1,27 +1,62 @@
 
 # Messanger server
 from socket import socket, AF_INET, SOCK_STREAM
+import logging
+import sys
+import select
 
 from utils import timestamp, encode_json, decode_json, arg_parser
 from jim import response
+import log_config
+# from log_config import log
 
 
-def main(HOST, PORT):
-    with socket(AF_INET, SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
-        s.listen(5)
-        while True:
-            client, addr = s.accept()
-            with client:
-                print(f"Connected by {str(addr)}")
-                data = client.recv(1024)
-                if not data: break
+app_log = logging.getLogger('app')
+
+def log(func):
+    def callf(*args, **kwargs):
+        # Containes function from which was called
+        call_log = sys._getframe(1).f_code.co_name
+        app_log.debug(f'function:{func.__name__}: args:{args}, kwargs:{kwargs}, called by: {call_log}')
+        return func(*args, **kwargs)
+    return callf
+
+@log
+def start_server(address):
+    sock = socket(AF_INET, SOCK_STREAM)
+    sock.bind(address)
+    sock.listen(5)
+    sock.settimeout(0.2)
+    return sock
+
+def srv_loop():
+    address = (HOST, PORT)
+    clients = []
+    sock = start_server(address)
+
+    while True:
+        try:
+            client, address = sock.accept()
+        except OSError as e:
+            pass
+        else:
+            print(f'Connected with {str(address)}')
+            clients.append(client)
+        finally:
+            w = []
+            try:
+                r, w, e = select.select([], clients, [], 0)
+            except Exception as e:
+                pass
+
+        for s_client in w:
+            srv_response = encode_json(response(200))
+            try:
+                data = s_client.recv(1024)
                 print(decode_json(data))
-                client.send(
-                    encode_json(
-                        response(200, timestamp(), 'OK')
-                    )
-                )
+                s_client.send(srv_response)
+            except:
+                clients.remove(s_client)
 
 
 if __name__ == '__main__':
@@ -38,27 +73,12 @@ if __name__ == '__main__':
         HOST = ''
         PORT = 7777
 
-    main(HOST, PORT)
+    print('Server started')
+    srv_loop()
+
+
+
 
 # имеет параметры командной строки:
 # -p --port <port> - TCP-порт для работы (по умолчанию использует порт 7777)
 # -a --addr <addr> - IP-адрес для прослушивания (по умолчанию слушает все доступные адреса)
-
-# Поддерживаемые коды ошибок:
-# 0xx - информационные сообщения:
-#     100 - базовое уведомление;
-#     101 - важное уведомление.
-# 2xx - успешное завершение:
-#     200 - OK;
-#     201 (created) - объект создан;
-#     202 (accepted)- подтверждение.
-# 4xx - ошибка на стороне клиента:
-#     400 - неправильный запрос/JSON-объект;
-#     401 - не авторизован;
-#     402 - неправильный логин/пароль;
-#     403 (forbidden) - пользователь заблокирован;
-#     404 (not found) - пользователь/чат отсутствует на сервере;
-#     409 (conflict) - уже имеется подключение с указанным логином;
-#     410 (gone) - адресат существует, но недоступен (offline).
-# 5xx - ошибка на стороне сервера:
-#     500 - ошибка сервера
