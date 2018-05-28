@@ -1,12 +1,13 @@
 import json
-from json import JSONDecodeError
 import time
 import sys
 import argparse
 
+
 def timestamp():
     unix_time = time.time()
     return int(unix_time)
+
 
 def encode_json(message):
     to_json = json.dumps(message)
