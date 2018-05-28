@@ -1,5 +1,3 @@
-
-
 # Messanger client
 from socket import socket, AF_INET, SOCK_STREAM
 import logging
@@ -12,6 +10,7 @@ import log_config
 
 app_log = logging.getLogger('app')
 
+
 def log(func):
     def callf(*args, **kwargs):
         # Containes function from which was called
@@ -20,12 +19,12 @@ def log(func):
         return func(*args, **kwargs)
     return callf
 
+
 @log
 def start_client(address):
     sock = socket(AF_INET, SOCK_STREAM)
     sock.connect(address)
     return sock
-
 
 
 def cli_loop(message):
@@ -34,6 +33,7 @@ def cli_loop(message):
     sock.send(message)
     data = sock.recv(1024)
     print(decode_json(data))
+
 
 presence_msg = encode_json(
     presence('Anton', status="online")
@@ -57,4 +57,4 @@ if __name__ == '__main__':
         HOST = 'localhost'
         PORT = 7777
 
-cli_loop(presence_msg)
+    cli_loop(presence_msg)

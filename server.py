@@ -33,6 +33,7 @@ def srv_loop():
     address = (HOST, PORT)
     clients = []
     sock = start_server(address)
+
     while True:
         try:
             client, address = sock.accept()
@@ -72,9 +73,11 @@ if __name__ == '__main__':
         HOST = ''
         PORT = 7777
 
+    print('Server started')
+    srv_loop()
 
-print('Server started')
-srv_loop()
+
+
 
 # имеет параметры командной строки:
 # -p --port <port> - TCP-порт для работы (по умолчанию использует порт 7777)
