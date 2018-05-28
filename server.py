@@ -8,18 +8,11 @@ import select
 from utils import timestamp, encode_json, decode_json, arg_parser
 from jim import response
 import log_config
-# from log_config import log
+from log_config import log
 
 
 app_log = logging.getLogger('app')
 
-def log(func):
-    def callf(*args, **kwargs):
-        # Containes function from which was called
-        call_log = sys._getframe(1).f_code.co_name
-        app_log.debug(f'function:{func.__name__}: args:{args}, kwargs:{kwargs}, called by: {call_log}')
-        return func(*args, **kwargs)
-    return callf
 
 @log
 def start_server(address):
