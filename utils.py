@@ -1,4 +1,5 @@
 import json
+from json import JSONDecodeError
 import time
 import sys
 import argparse
@@ -12,10 +13,12 @@ def encode_json(message):
     to_json_b = to_json.encode('utf-8')
     return to_json_b
 
+
 def decode_json(message):
     decode = message.decode('utf-8')
     to_dict = json.loads(decode)
     return to_dict
+
 
 def arg_parser():
     parser = argparse.ArgumentParser(

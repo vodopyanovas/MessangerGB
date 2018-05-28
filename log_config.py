@@ -3,13 +3,13 @@ from logging.handlers import TimedRotatingFileHandler
 import sys
 
 
-def log(func):
-    def callf(*args, **kwargs):
-        # Containes function from which was called
-        call_log = sys._getframe(1).f_code.co_name
-        app_log.debug(f'Function {func.__name__}: args:{args}, kwargs:{kwargs}, called by: {call_log}')
-        return func(*args, **kwargs)
-    return callf
+# def log(func):
+#     def callf(*args, **kwargs):
+#         # Containes function from which was called
+#         call_log = sys._getframe(1).f_code.co_name
+#         app_log.debug(f'Function {func.__name__}: args:{args}, kwargs:{kwargs}, called by: {call_log}')
+#         return func(*args, **kwargs)
+#     return callf
 
 
 app_log = logging.getLogger('app')
@@ -22,10 +22,7 @@ app_log.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s')
 
 # Adding handler for writing log to file with each day file rotating
-if __name__ == 'server':
-    log_handler = TimedRotatingFileHandler(f'app_server.log', backupCount=7, when='D', interval=1)
-else:
-    log_handler = logging.FileHandler(f'app_{__name__}.log')
+log_handler = TimedRotatingFileHandler(f'app.log', backupCount=7, when='D', interval=1)
 log_handler.setLevel(logging.DEBUG)
 log_handler.setFormatter(formatter)
 

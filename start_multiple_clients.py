@@ -14,9 +14,11 @@ while True:
             # Start 5 processes in separate console window
             p_list.append(Popen('py client.py', creationflags=CREATE_NEW_CONSOLE))
 
-        print(f'{n} clients started')
+        print(f'{n} clients started\n')
 
     elif user == 'x':
         for p in p_list:
             p.kill()
         p_list.clear()
+    else:
+        print('Wrong input!')
