@@ -1,39 +1,44 @@
 # Messanger client
+
+# имеет параметры командной строки:
+# -p --port <port> - TCP-порт для работы (по умолчанию использует порт 7777)
+# -a --addr <addr> - IP-адрес для прослушивания (по умолчанию слушает все доступные адреса)
+
 from socket import socket, AF_INET, SOCK_STREAM
 import logging
-import sys
 
-from jim import presence
-from utils import timestamp, encode_json, decode_json, arg_parser
+from jim import JIMMessage
+from utils import encode_json, decode_json, arg_parser
 import log_config
 from log_config import log
 
 
 app_log = logging.getLogger('app')
 
-
-@log
-def start_client(address):
-    sock = socket(AF_INET, SOCK_STREAM)
-    sock.connect(address)
-    return sock
+msg = JIMMessage()
 
 
-def cli_loop(message):
-    address = (HOST, PORT)
-    sock = start_client(address)
-    sock.send(message)
-    data = sock.recv(1024)
-    print(decode_json(data))
+class JIMClient:
 
+    def __init__(self, account, password):
+        self.account = account
+        self.password = password
 
-presence_msg = encode_json(
-    presence('Anton', status="online")
-)
+    def start_client(self):
+        address = (HOST, PORT)
+        sock = socket(AF_INET, SOCK_STREAM)
+        sock.connect(address)
+        return sock
 
-# имеет параметры командной строки:
-# -p --port <port> - TCP-порт для работы (по умолчанию использует порт 7777)
-# -a --addr <addr> - IP-адрес для прослушивания (по умолчанию слушает все доступные адреса)
+    def send_msg(self, *args):
+        sock = self.start_client()
+        for arg in args:
+            msg = encode_json(arg)
+            sock.send(msg)
+            data = sock.recv(1024)
+            decoded_data = decode_json(data)
+            print(decode_json(decoded_data))
+
 
 if __name__ == '__main__':
     parser = arg_parser()
@@ -49,4 +54,14 @@ if __name__ == '__main__':
         HOST = 'localhost'
         PORT = 7777
 
-    cli_loop(presence_msg)
+
+    user = JIMClient('anton', '12345')
+
+    auth_msg = msg.authenticate(user.account, user.password)
+    presence_msg = msg.presence(user.account, status='online')
+
+    msg_text = 'Привет! Как твои дела? Чего нового?'
+    message = msg.message('Timur', user.account, msg_text)
+
+    # user.send_msg(auth_msg, presence_msg, message)
+    user.send_msg(message)
